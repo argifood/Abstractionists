@@ -1,29 +1,23 @@
-<!DOCTYPE html>
+	<!DOCTYPE html>
 <html>
 <head>
 	<title>Irigator</title>
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 	<style type="text/css">
 		body {
- 		background-image: url('https://cdn.pixabay.com/photo/2018/05/15/09/23/raindrop-3402550_960_720.jpg');
  		background-color: #cccccc;
  		background-repeat:no-repeat!important;
  		background-size: cover!important;
 	}
 
-		.container{
-			margin-top:144px;
-		}
 
-		.row{
-
-		}
-
-		.col-sm:not(:first-child){
+		/* .col-sm:not(:first-child){
 			margin-left: 15px;
 			color:blue;
-		}
+		} */
 
 	   h1{
 	   	text-align: center;
@@ -70,45 +64,106 @@ input[type=button] {
   /* top: 100%;
   left: 0;
   right: 0; */
-	left:150px;
+	left:135px;
 }
 .autocomplete-items div {
 
   cursor: pointer;
-  background-color: #fff; 
-  border-bottom: 1px solid #d4d4d4; 
+  background-color: #fff;
+  border-bottom: 1px solid #d4d4d4;
 }
 .autocomplete-items div:hover {
   /*when hovering an item:*/
-  background-color: #e9e9e9; 
+  background-color: #e9e9e9;
 }
 .autocomplete-active {
   /*when navigating through the items using the arrow keys:*/
-  background-color: DodgerBlue !important; 
-  color: #ffffff; 
+  background-color: DodgerBlue !important;
+  color: #ffffff;
+}
+
+#btn-pump1{
+  margin-left: 72px;
+  width:50%;
+}
+
+#btn-pump2{
+  margin-left: 72px;
+  width:50%;
+}
+
+#btn-pump3{
+  margin-left: 72px;
+  width:50%;
 }
 
 	</style>
 </head>
 <body>
-	<h1>The first IoT solution applied in irrigation systems</h1>
-	<form id="weatherForm" onsubmit="return false;" action="" autocomplete="off">
-	<div class="autocomplete" style="width:300px;">
-	Επιλέξτε περιοχή: <input type="text" name="city" id="searchTextInput">&nbsp
-		</div>
-  <input id="weatherButton" type="button" value="Πάμε!">
-</form>
-<div id="openweathermap-widget-11"></div>
-	<div class="container">
+<a class="weatherwidget-io" href="https://forecast7.com/en/39d3621d92/karditsa/" data-label_1="KARDITSA" data-label_2="WEATHER" data-theme="original" >KARDITSA WEATHER</a>
+	<div>&nbsp;</div>
+  <div>&nbsp;</div>
+<div class="container" style="background-color: rgba(255,255,255,0.6);padding:50px;">
   <div class="row">
+  <form id="weatherForm" onsubmit="return false;" action="" autocomplete="off">
+	<div class="autocomplete" style="width:300px;">
+	Επιλέξτε περιοχή: <input type="text" name="city" id="searchTextInput" value="Karditsa"></div>
+  <input id="weatherButton" type="button" value="Πάμε!">
+	<br>
+	<div>&nbsp;</div>
+</form>
+</div>
+<div class="row">
     <div class="col-sm">
-      One of three columns
+      <table style="width:100%;border-collapse: unset;border: 1px solid gray;border-radius: 4px;padding: 10px;">
+        <thead>
+          <tr>
+          <th style="width: 50%;">Pin no</th>
+          <th>Operation</th>
+        </tr>
+        </thead>
+        <tbody>
+          <tr id="tr_pump1">
+            <td></td>
+            <td id="inOperation4"></td>
+          </tr>
+        </tbody>
+      </table>
+      <input type="button" value="I/O" id="btn-pump1">
     </div>
     <div class="col-sm">
-      One of three columns
+             <table style="width:100%;border-collapse: unset;border: 1px solid gray;border-radius: 4px;padding: 10px;">
+             <thead>
+          <tr>
+          <th style="width: 50%;">Pin no</th>
+          <th>Operation</th>
+        </tr>
+        </thead>
+             <tbody>
+          <tr id="tr_pump2">
+            <td></td>
+            <td id="inOperation5"></td>
+          </tr>
+        </tbody>
+      </table>
+      <input type="button" value="I/O" id="btn-pump2">
     </div>
     <div class="col-sm">
-    	One of three columns
+    	        <table style="width:100%;border-collapse: unset;border: 1px solid gray;border-radius: 4px;padding: 10px;">
+              <thead>
+          <tr>
+          <th style="width: 50%;">Pin no</th>
+          <th>Operation</th>
+        </tr>
+        </thead>
+             <tbody>
+          <tr id="tr_pump3">
+            <td></td>
+            <td id="inOperation6"></td>
+          </tr>
+        </tbody>
+      </table>
+      <input type="button" value="I/O" id="btn-pump3">
       <!-- db.php connection with database in a variable -->
       <!-- include db.php, mysqli, pdo -->
     </div>
@@ -118,7 +173,68 @@ input[type=button] {
 <?php include 'footer.php';?>
 </body>
 <script>
-	var locationsJson = <?php echo $strJsonFileContents; ?>;
+	var pump1;
+  $(document).ready(function(){
+    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+    var xhr = new XMLHttpRequest();
+    var url = 'http://abstractionists.alwaysdata.net/api/getPumps.php';
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function(){
+    if(xhr.readyState == 4 && xhr.status == 200){
+      pump1 = xhr.responseText;
+      let c = document.getElementById("tr_pump1").children;
+      let columnCounter = 0;
+      let strBuffer = pump1.split(',');
+      strBuffer.forEach(function(strToken){
+        let tokenArray = strToken.split('-');
+        let counter = 0;
+        tokenArray.forEach(function(strToken1){
+          c[counter].textContent = strToken1;
+          counter++;
+          if(counter == 2){
+            counter = 0;
+            if(columnCounter == 0){
+              c = document.getElementById("tr_pump2").children;
+              columnCounter++;
+            }else if(columnCounter == 1){
+              c = document.getElementById("tr_pump3").children;
+              columnCounter++;
+            }else{
+              return;
+            }
+          }
+
+        })
+				if(document.getElementById("inOperation4").innerText=="L"){
+					document.getElementById("btn-pump1").style.backgroundColor = "red";
+				}
+				else{
+					document.getElementById("btn-pump1").style.backgroundColor = "green";
+				}
+
+				if(document.getElementById("inOperation5").innerText=="L"){
+					document.getElementById("btn-pump2").style.backgroundColor = "red";
+				}
+				else{
+					document.getElementById("btn-pump2").style.backgroundColor = "green";
+				}
+
+				if(document.getElementById("inOperation6").innerText=="L"){
+					document.getElementById("btn-pump3").style.backgroundColor = "red";
+				}
+				else{
+					document.getElementById("btn-pump3").style.backgroundColor = "green";
+				}
+      })
+      let tr2 = document.getElementById("tr_pump2");
+      // let tr3 =document.getElementById("tr_pump3");
+    }
+  };
+  xhr.send();
+});
+
+
+  var locationsJson = <?php echo $strJsonFileContents; ?>;
 	var cities = [];
 	var citiesDictionary = {};
 	var weatherInfo;
@@ -141,7 +257,7 @@ input[type=button] {
 		if(inp.value.length < 2){
 				closeAllLists();
 				return false;
-			}	
+			}
 		var a, b, i, val = this.value;
       /*close any already open lists of autocompleted values*/
 			closeAllLists();
@@ -217,7 +333,7 @@ input[type=button] {
       x[i].classList.remove("autocomplete-active");
     }
 	}
-	
+
   function closeAllLists(elmnt) {
     /*close all autocomplete lists in the document,
     except the one passed as an argument:*/
@@ -229,11 +345,11 @@ input[type=button] {
   }
 }
 
-/*execute a function when someone clicks in the document:*/
-document.addEventListener("click", function (e) {
+  /*execute a function when someone clicks in the document:*/
+  document.addEventListener("click", function (e) {
     closeAllLists(e.target);
-});
-
+  });
+}
 document.getElementById("weatherButton").addEventListener("click", function (e) {
 		let cityText = document.getElementById("searchTextInput").value;
 		var xhr = new XMLHttpRequest();
@@ -247,7 +363,70 @@ document.getElementById("weatherButton").addEventListener("click", function (e) 
   xhr.send();
 });
 
+document.getElementById('btn-pump1').addEventListener('click', function(){
+  var xhr = new XMLHttpRequest();
+  	var url = 'http://abstractionists.alwaysdata.net/api/setPump.php?pinNumber=4&inOperation='+(document.getElementById("inOperation4").innerText=="L"?"H":"L");
+  	xhr.open('GET', url, true);
+  	xhr.onreadystatechange = function(){
+    if(xhr.readyState == 4 && xhr.status == 200){
+      weatherInfo = xhr.responseText;
+			document.getElementById("inOperation4").innerText = document.getElementById("inOperation4").innerText=="L"?"H":"L";
+			SetButtonColors();
+    }
+  };
+  xhr.send();
+});
 
+document.getElementById('btn-pump2').addEventListener('click', function(){
+  var xhr = new XMLHttpRequest();
+  	var url = 'http://abstractionists.alwaysdata.net/api/setPump.php?pinNumber=5&inOperation='+(document.getElementById("inOperation5").innerText=="L"?"H":"L");
+  	xhr.open('GET', url, true);
+  	xhr.onreadystatechange = function(){
+    if(xhr.readyState == 4 && xhr.status == 200){
+      weatherInfo = xhr.responseText;
+			document.getElementById("inOperation5").innerText = document.getElementById("inOperation5").innerText=="L"?"H":"L";
+			SetButtonColors();
+    }
+  };
+  xhr.send();
+});
+
+document.getElementById('btn-pump3').addEventListener('click', function(){
+  var xhr = new XMLHttpRequest();
+  	var url = 'http://abstractionists.alwaysdata.net/api/setPump.php?pinNumber=6&inOperation='+(document.getElementById("inOperation6").innerText=="L"?"H":"L");
+  	xhr.open('GET', url, true);
+  	xhr.onreadystatechange = function(){
+    if(xhr.readyState == 4 && xhr.status == 200){
+      weatherInfo = xhr.responseText;
+			document.getElementById("inOperation6").innerText = document.getElementById("inOperation6").innerText=="L"?"H":"L";
+			SetButtonColors();
+    }
+  };
+  xhr.send();
+});
+
+function SetButtonColors(){
+	if(document.getElementById("inOperation4").innerText=="L"){
+		document.getElementById("btn-pump1").style.backgroundColor = "red";
+	}
+	else{
+		document.getElementById("btn-pump1").style.backgroundColor = "green";
+	}
+
+	if(document.getElementById("inOperation5").innerText=="L"){
+		document.getElementById("btn-pump2").style.backgroundColor = "red";
+	}
+	else{
+		document.getElementById("btn-pump2").style.backgroundColor = "green";
+	}
+
+	if(document.getElementById("inOperation6").innerText=="L"){
+		document.getElementById("btn-pump3").style.backgroundColor = "red";
+	}
+	else{
+		document.getElementById("btn-pump3").style.backgroundColor = "green";
+	}
 }
+
 </script>
 </html>
